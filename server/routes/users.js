@@ -12,6 +12,8 @@
         User.find()
             .then(x => {
                 console.log('✔️ - Users Found!');
+                console.log(req.body)
+                console.log(x);
                 res.json(x);
                 console.log('✔️ - Users Returned!');
             })
@@ -20,6 +22,31 @@
                 res.status(400).json('Error: ' + err);
         });
     });
+
+//💥💥💥 GET USER INFO ----- TEST -----
+
+router.post('/info', (req, res, next)=>{
+    console.log('🔰 - Attempting to GET Users.')
+    console.log(req.body)
+    console.log(`INFO IP address is: `+ req.body.ip)
+
+   User.findOne({user_ip: req.body.ip})
+    //.exec()
+    //.then((res) => {return res.json();})
+    .then( x=> {
+        console.log('✔️ - User Found!');
+        console.log(x);
+        res.json(x); 
+        console.log('✔️ - User Returned!');
+    })
+    .catch(err => {
+        console.log('❌ - Error Loading User!')
+        res.status(400).json('Error: ' + err);
+});
+      
+});
+
+
 
 //💥💥💥 ADD NEW USER / UPDATE EXISTING USER
 
@@ -52,43 +79,37 @@
             res.json(x);
         })
         .catch(err => {
-            console.log('❌ - Error Saving User!')
-            res.status(400).json('Error: ' + err)
+            console.log('❌ - Error Saving User!');
+            res.status(400).json('Error: ' + err);
         });
         }
         else {
  
-            console.log('❌ - User Already Exists.');
-            console.log('🔰 - Attempting to UPDATE User.')
-            console.log(req.body.ip)
-            console.log([req.body.can[0], req.body.can[1], req.body.can[2]])
+            console.log('⚠️ - User Already Exists.');
+            console.log('🔰 - Attempting to UPDATE User.');
 
-
-            User.findOne( {user_ip: req.body.ip})
+            await User.findOne({user_ip: req.body.ip})
                 .then(x => {
-                    x.user_ip = req.body.ip
-                    x.can = [req.body.can[0], req.body.can[1], req.body.can[2]]
-                    x.timestamps = Date.now()
-    
-                    //ONLY UPDATING NAME FOR NOW - NEED TO INCLUDE OTHER VARIABLES
-                    //need to update timestamp
-                    console.log(x)
-                    console.log('✔️ - User object created. Attempting to UPDATE the Database.')
+                    x.can = [req.body.can[0], req.body.can[1], req.body.can[2]];
+                    x.timestamps = Date.now();
+
+                    console.log(x);
+                    console.log('✔️ - User object created. Attempting to UPDATE the Database.');
     
                     x.save()
-                        .then(x => {
+                        //.then(response => {return response.json()})
+                        .then(response => {
                             console.log('✔️ - User Successfully Updated!');
-                            console.log(x)
-                            res.json(x);
+                            console.log(response);
+                            res.json(response);
                         })
                         .catch(err => {
-                            console.log('❌ - Error Updating User!')
-                            res.status(400).json('Error: ' + err)
-                        })
+                            console.log('❌ - Error Updating User!');
+                            res.status(400).json('Error: ' + err);
+                        });
 
                 });
         }
-
     });
 
 //💥💥💥 UPDATE USER

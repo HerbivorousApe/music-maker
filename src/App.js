@@ -1,4 +1,5 @@
 import React from 'react';
+//import Notes from 'Notes';
 import './App.css';
 import * as Tone from 'tone';
 
@@ -33,7 +34,9 @@ this.changeUserNoun = this.changeUserNoun.bind(this);
   componentDidMount() {
     console.log('🔰💥🔰 componentDidMount 🔰💥🔰 (4)'); // Fourth
     this.getSelections();
+    this.getIp();
     this.userSearch();
+    //this.setTempCan();
   };
 
   shouldComponentUpdate() {
@@ -50,6 +53,7 @@ this.changeUserNoun = this.changeUserNoun.bind(this);
 
   componentDidUpdate() {
     console.log("🔰💥🔰 componentDidUpdate 🔰💥🔰 (8)"); // Eighth (after update)
+   // if (this.state.ip !== '' && !this.state.okayToRender) this.userSearch();
   }
 
   componentWillUnmount() {
@@ -78,14 +82,73 @@ getIp = () => {
     this.setState({
       ip: result.ip
     });
+    console.log('1 - ' + this.state.ip)
   }
   ,(error) => {console.log('ERROR!!!')
   });
 };
 
+setTempCan = () => {
+    this.setState({
+      can: [this.randomizedColor(), 
+        this.state.user_descriptor.indexOf(this.randomizedArray(this.state.user_descriptor)), 
+        this.state.user_noun.indexOf(this.randomizedArray(this.state.user_noun))],
+        temp_can: this.state.can
+    });
+    console.log(this.state.can)
+    console.log(this.state.temp_can)
+}
+
+/*userSearch = () => {
+  console.log('💥userSearch')
+  console.log(this.state.ip)
+  fetch('http://localhost:5000/api/users/info', {
+    method: 'POST',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify({
+      ip: this.state.ip
+    })
+  })
+  .then(response => {return response.json()})
+  .then(response => {
+    console.log('----------------------- response')
+    console.log(response)
+     if (response.user_ip === this.state.ip) {
+      console.log('----------------------- IPs equal')
+        this.setState({
+          can: response.can,
+          temp_can: response.can,
+          id: response._id,
+          revisit: true,
+          okayToRender: true
+        });
+      }
+  })
+    .catch(err => {console.log(err)})
+
+          if (this.state.revisit === false) {
+            console.log('----------------------- REVISIT FALSE')
+            this.setState({
+              can: [this.randomizedColor(), 
+                this.state.user_descriptor.indexOf(this.randomizedArray(this.state.user_descriptor)), 
+                this.state.user_noun.indexOf(this.randomizedArray(this.state.user_noun))],
+            });
+            console.log(this.state.can)
+            //different to load can^^^ into temp_canvvv
+            this.setState({
+              temp_can: this.state.can,
+              revisit: false,
+              okayToRender: true
+            });
+          }
+        }*/
+
+
+
 userSearch = () => {
   console.log('💥userSearch')
-  this.getIp();
+  //this.getIp();
+  console.log(`2 - ${this.state.ip}`)
   fetch("http://localhost:5000/api/users")
   .then(res => res.json())
   .then((result) => {
@@ -99,16 +162,17 @@ userSearch = () => {
             okayToRender: true
           });
         }
-      };
+      }; 
 
 console.log(this.state.id)
-
+console.log(`3 - ${this.state.ip}`)
       if (this.state.revisit === false) {
         this.setState({
           can: [this.randomizedColor(), 
             this.state.user_descriptor.indexOf(this.randomizedArray(this.state.user_descriptor)), 
             this.state.user_noun.indexOf(this.randomizedArray(this.state.user_noun))],
         });
+        //different to load can^^^ into temp_canvvv
         this.setState({
           temp_can: this.state.can,
           revisit: false,
@@ -133,9 +197,6 @@ console.log('💥handleSubmit')
     });
 };
 
-
-
-
 playTrack() {
 console.log('💥playTrack')
 //create a synth and connect it to the main output (your speakers)
@@ -153,7 +214,7 @@ synth.triggerAttackRelease("G3", "8n", now + 1.75);
 };
 
 randomNum(min, max) {
-//console.log('💥randomNum')
+console.log('💥randomNum')
 return Math.floor(Math.random() * (max - min)) + min;
 };
 
@@ -169,7 +230,10 @@ for (let i=0; i < 6; i++) {
 return randomColor
 };
 
-randomizedArray(array) {console.log('💥randomizedArray'); return array[this.randomNum(0,array.length)]};
+randomizedArray(array) {
+  console.log('💥randomizedArray'); 
+  return array[this.randomNum(0,array.length)]
+};
 
 
 
@@ -184,48 +248,29 @@ editUser () {
 }
 
 saveUser () {
-  console.log('💥saveUser')
-  this.setState({
-    can: this.state.temp_can,
-    revisit: true
-  })
-
- /* console.log(this.state.id)
-  console.log(this.state.id)
-  fetch("http://localhost:5000/api/users")
-    .then(res => res.json())
-    .then((result) => {
-      for (let i=0; i < result.length; i++) {
-       if (result[i].user_ip === this.state.ip) {
-          this.setState({id: result[i]._id});
-          console.log(this.state.id)
-       }
-      }
-    })*/
-
-  fetch('http://localhost:5000/api/users/add', {
-    method: 'POST',
-    headers: {'content-type': 'application/json'},
-    body: JSON.stringify({
-      ip: this.state.ip,
+    console.log('💥saveUser')
+    this.setState({
       can: this.state.temp_can,
-      id: this.state.id
+      revisit: true
     })
-  })
-    .then(response => {console.log(response)})
-    .catch(err => {console.log(err)})
 
-
-
-
-
-
-
-}
-    
-   
-
-
+    fetch('http://localhost:5000/api/users/add', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json'},
+      body: JSON.stringify({
+        ip: this.state.ip,
+        can: this.state.temp_can,
+        id: this.state.id
+      })
+    })
+      //.then(response => {console.log(response.json())}) //Promise { <state>: "pending" }
+      //.then(response => {console.log(response)}) //Response { type: "cors", url: "http://localhost:5000/api/users/add", redirected: false, status: 200, ok: true, statusText: "OK", headers: Headers, body: ReadableStream, bodyUsed: false }
+      .then(response => {return response.json()})
+      .then(response => console.log(response))
+      .catch(err => console.log(err))
+};
 
 alterColor () {
   console.log('💥alterColor')
@@ -324,7 +369,7 @@ changeUserNoun () {
         <br/>
     </div>
 
-
+    
 
 
 {/*}<p>{this.state.user_descriptor}</p>
@@ -341,7 +386,9 @@ changeUserNoun () {
       <input type="color" name="trackColorPicker" id="trackColorPicker"></input>
     </form>{*/}
     </div>
+
   );
+
 }
 }
 
